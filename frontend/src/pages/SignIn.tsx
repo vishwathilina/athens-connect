@@ -1,15 +1,29 @@
 import Navbar from "@/components/Navbar";
 import { ArrowUpRight } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 
 const SignIn = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    alert("Sign in functionality requires backend integration.");
+    setError(null);
+    setIsSubmitting(true);
+    try {
+      await login(email, password);
+      navigate("/");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Sign in failed");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -52,9 +66,10 @@ const SignIn = () => {
               </label>
               <a href="#" className="text-primary hover:underline text-xs">Forgot password?</a>
             </div>
-            <button type="submit" className="btn-primary w-full justify-center text-sm">
-              Sign In <ArrowUpRight className="w-4 h-4" />
+            <button type="submit" className="btn-primary w-full justify-center text-sm" disabled={isSubmitting}>
+              {isSubmitting ? "Signing in…" : "Sign In"} <ArrowUpRight className="w-4 h-4" />
             </button>
+            {error && <p className="text-sm text-destructive text-center">{error}</p>}
           </form>
 
           <div className="mt-6 text-center">

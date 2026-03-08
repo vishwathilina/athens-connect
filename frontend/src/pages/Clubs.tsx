@@ -1,36 +1,33 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ArrowUpRight, Users, Search } from "lucide-react";
-import clubMeeting from "@/assets/club-meeting.jpg";
-import event1 from "@/assets/event1.jpg";
-import event2 from "@/assets/event2.jpg";
-import event3 from "@/assets/event3.jpg";
 import { Link } from "react-router-dom";
 import { useState } from "react";
-
-const clubs = [
-  { id: 1, name: "Debate Society", category: "Academic", members: 120, image: event3, description: "Sharpen your argumentation and public speaking skills through competitive debate." },
-  { id: 2, name: "Tech & Innovation Club", category: "Technology", members: 250, image: event2, description: "Build, hack, and innovate with like-minded tech enthusiasts on campus." },
-  { id: 3, name: "Photography Club", category: "Arts", members: 85, image: event1, description: "Capture campus life through your lens. Workshops, photo walks, and exhibitions." },
-  { id: 4, name: "Community Service Club", category: "Social", members: 180, image: clubMeeting, description: "Make a difference in the community through volunteer work and service projects." },
-  { id: 5, name: "Music & Band Society", category: "Arts", members: 95, image: event1, description: "From jam sessions to campus concerts — express yourself through music." },
-  { id: 6, name: "Entrepreneurship Club", category: "Business", members: 200, image: event2, description: "Launch your startup journey with mentorship, pitch nights, and networking." },
-  { id: 7, name: "Environmental Club", category: "Social", members: 110, image: event1, description: "Advocate for sustainability and lead green initiatives across campus." },
-  { id: 8, name: "Sports & Fitness Club", category: "Athletics", members: 300, image: clubMeeting, description: "Stay active with intramural sports, fitness challenges, and team events." },
-  { id: 9, name: "Film & Media Club", category: "Arts", members: 75, image: event3, description: "Produce short films, documentaries, and explore the art of storytelling." },
-];
+import { useClubs } from "@/hooks/useClubs";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const categories = ["All", "Academic", "Technology", "Arts", "Social", "Business", "Athletics"];
+
+const ClubsSkeleton = () => (
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
+    {Array.from({ length: 6 }).map((_, i) => (
+      <div key={i} className="rounded-2xl overflow-hidden bg-card border border-border">
+        <Skeleton className="h-48 w-full" />
+        <div className="p-5 space-y-2">
+          <Skeleton className="h-5 w-2/3" />
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-1/3" />
+        </div>
+      </div>
+    ))}
+  </div>
+);
 
 const Clubs = () => {
   const [activeCategory, setActiveCategory] = useState("All");
   const [search, setSearch] = useState("");
 
-  const filtered = clubs.filter(c => {
-    const matchCat = activeCategory === "All" || c.category === activeCategory;
-    const matchSearch = c.name.toLowerCase().includes(search.toLowerCase());
-    return matchCat && matchSearch;
-  });
+  const { data: clubs = [], isLoading, error } = useClubs(activeCategory, search);
 
   return (
     <div className="min-h-screen bg-background">
@@ -70,31 +67,47 @@ const Clubs = () => {
         </div>
 
         {/* Clubs Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
-          {filtered.map(club => (
-            <Link to={`/clubs/${club.id}`} key={club.id} className="group">
-              <div className="rounded-2xl overflow-hidden bg-card border border-border hover:border-primary transition-colors">
-                <div className="relative h-48 overflow-hidden">
-                  <img src={club.image} alt={club.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                  <span className="absolute top-3 left-3 tag-pill bg-background/90 backdrop-blur-sm text-xs">{club.category}</span>
-                </div>
-                <div className="p-5">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-display font-bold text-lg text-foreground">{club.name}</h3>
-                    <ArrowUpRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                  </div>
-                  <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{club.description}</p>
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <Users className="w-3.5 h-3.5" />
-                    <span>{club.members} members</span>
-                  </div>
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
+        {isLoading && <ClubsSkeleton />}
 
-        {filtered.length === 0 && (
+        {error && (
+          <div className="text-center py-20">
+            <p className="text-muted-foreground text-lg">Failed to load clubs. Please try again.</p>
+          </div>
+        )}
+
+        {!isLoading && !error && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
+            {clubs.map(club => (
+              <Link to={`/clubs/${club.slug}`} key={club.id} className="group">
+                <div className="rounded-2xl overflow-hidden bg-card border border-border hover:border-primary transition-colors">
+                  <div className="relative h-48 overflow-hidden bg-secondary">
+                    {club.logo_url ? (
+                      <img src={club.logo_url} alt={club.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-4xl font-display font-bold text-muted-foreground/20">
+                        {club.name[0]}
+                      </div>
+                    )}
+                    <span className="absolute top-3 left-3 tag-pill bg-background/90 backdrop-blur-sm text-xs">{club.category}</span>
+                  </div>
+                  <div className="p-5">
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="font-display font-bold text-lg text-foreground">{club.name}</h3>
+                      <ArrowUpRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                    </div>
+                    <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{club.description}</p>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <Users className="w-3.5 h-3.5" />
+                      <span>{club.member_count} members</span>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
+
+        {!isLoading && !error && clubs.length === 0 && (
           <div className="text-center py-20">
             <p className="text-muted-foreground text-lg">No clubs found matching your criteria.</p>
           </div>
