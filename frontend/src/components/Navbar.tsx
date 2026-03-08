@@ -1,4 +1,14 @@
-import { ArrowUpRight, Menu, X, ChevronDown, LogOut, User, LayoutDashboard, Shield } from "lucide-react";
+import {
+  ArrowUpRight,
+  Menu,
+  X,
+  ChevronDown,
+  LogOut,
+  User,
+  ShieldAlert,
+  LayoutDashboard,
+  Shield,
+} from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import logo from "@/assets/logo.svg";
@@ -17,7 +27,10 @@ const Navbar = () => {
   // Close dropdown when clicking outside
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target as Node)
+      ) {
         setProfileOpen(false);
       }
     };
@@ -39,7 +52,12 @@ const Navbar = () => {
 
   // Get initials from name
   const initials = user?.name
-    ? user.name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2)
+    ? user.name
+        .split(" ")
+        .map((w) => w[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2)
     : "?";
 
   return (
@@ -52,11 +70,42 @@ const Navbar = () => {
 
         {/* Desktop Links */}
         <div className="hidden md:flex items-center gap-8">
-          <Link to="/" className={`text-sm font-medium transition-colors ${isActive("/") ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}>Home</Link>
-          <Link to="/clubs" className={`text-sm font-medium transition-colors ${isActive("/clubs") ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}>Clubs</Link>
-          <Link to="/events" className={`text-sm font-medium transition-colors ${isActive("/events") ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}>Events</Link>
-          <Link to="/about" className={`text-sm font-medium transition-colors ${isActive("/about") ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}>About Us</Link>
-          <Link to="/contact" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors border border-border rounded-full px-4 py-1.5 flex items-center gap-1">
+          <Link
+            to="/"
+            className={`text-sm font-medium transition-colors ${isActive("/") ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+          >
+            Home
+          </Link>
+          <Link
+            to="/clubs"
+            className={`text-sm font-medium transition-colors ${isActive("/clubs") ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+          >
+            Clubs
+          </Link>
+          <Link
+            to="/events"
+            className={`text-sm font-medium transition-colors ${isActive("/events") ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+          >
+            Events
+          </Link>
+          <Link
+            to="/about"
+            className={`text-sm font-medium transition-colors ${isActive("/about") ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+          >
+            About Us
+          </Link>
+          {user?.role === "staff" && (
+            <Link
+              to="/staff"
+              className={`text-sm font-medium flex items-center gap-1 transition-colors ${isActive("/staff") ? "text-primary" : "text-muted-foreground hover:text-primary"}`}
+            >
+              <ShieldAlert className="w-3.5 h-3.5" /> Staff Panel
+            </Link>
+          )}
+          <Link
+            to="/contact"
+            className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors border border-border rounded-full px-4 py-1.5 flex items-center gap-1"
+          >
             Contact Us <ArrowUpRight className="w-3.5 h-3.5" />
           </Link>
         </div>
@@ -64,28 +113,32 @@ const Navbar = () => {
         {/* Desktop Actions */}
         <div className="hidden md:flex items-center gap-4">
           {user ? (
-            /* ── Profile Dropdown ── */
+            /* Profile Dropdown */
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setProfileOpen((v) => !v)}
                 className="flex items-center gap-2 rounded-full pl-1 pr-3 py-1 border border-border hover:border-primary/50 transition-colors"
               >
-                {/* Avatar circle */}
                 <span className="w-7 h-7 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center select-none">
                   {initials}
                 </span>
                 <span className="text-sm font-medium text-foreground max-w-[120px] truncate">
                   {user.name}
                 </span>
-                <ChevronDown className={`w-3.5 h-3.5 text-muted-foreground transition-transform ${profileOpen ? "rotate-180" : ""}`} />
+                <ChevronDown
+                  className={`w-3.5 h-3.5 text-muted-foreground transition-transform ${profileOpen ? "rotate-180" : ""}`}
+                />
               </button>
 
-              {/* Dropdown panel */}
               {profileOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-background border border-border rounded-xl shadow-lg py-1 animate-in fade-in slide-in-from-top-2 duration-150">
+                <div className="absolute right-0 mt-2 w-52 bg-background border border-border rounded-xl shadow-lg py-1 animate-in fade-in slide-in-from-top-2 duration-150">
                   <div className="px-4 py-2 border-b border-border">
-                    <p className="text-xs text-muted-foreground">Signed in as</p>
-                    <p className="text-sm font-medium text-foreground truncate">{user.email}</p>
+                    <p className="text-xs text-muted-foreground">
+                      Signed in as
+                    </p>
+                    <p className="text-sm font-medium text-foreground truncate">
+                      {user.email}
+                    </p>
                   </div>
                   <Link
                     to="/dashboard"
@@ -93,12 +146,20 @@ const Navbar = () => {
                   >
                     <LayoutDashboard className="w-4 h-4" /> My Dashboard
                   </Link>
-                  {user.role === 'club_admin' && (
+                  {user.role === "club_admin" && (
                     <Link
                       to="/president"
                       className="flex items-center gap-2 px-4 py-2 text-sm text-foreground hover:bg-secondary transition-colors"
                     >
                       <Shield className="w-4 h-4" /> President Dashboard
+                    </Link>
+                  )}
+                  {user.role === "staff" && (
+                    <Link
+                      to="/staff"
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-primary hover:bg-secondary transition-colors"
+                    >
+                      <ShieldAlert className="w-4 h-4" /> Staff Panel
                     </Link>
                   )}
                   <button
@@ -112,44 +173,109 @@ const Navbar = () => {
             </div>
           ) : (
             <>
-              <Link to="/signin" className="text-sm font-medium text-foreground hover:text-primary transition-colors">Sign In</Link>
-              <Link to="/signup" className="btn-primary text-sm">Join Now</Link>
+              <Link
+                to="/signin"
+                className="text-sm font-medium text-foreground hover:text-primary transition-colors"
+              >
+                Sign In
+              </Link>
+              <Link to="/signup" className="btn-primary text-sm">
+                Join Now
+              </Link>
             </>
           )}
         </div>
 
         {/* Mobile Toggle */}
-        <button className="md:hidden text-foreground" onClick={() => setMobileOpen(!mobileOpen)}>
-          {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+        <button
+          className="md:hidden text-foreground"
+          onClick={() => setMobileOpen(!mobileOpen)}
+        >
+          {mobileOpen ? (
+            <X className="w-6 h-6" />
+          ) : (
+            <Menu className="w-6 h-6" />
+          )}
         </button>
       </div>
 
       {/* Mobile Menu */}
       {mobileOpen && (
         <div className="md:hidden bg-background border-t border-border px-6 py-6 space-y-4">
-          <Link to="/" onClick={() => setMobileOpen(false)} className="block text-sm font-medium text-foreground">Home</Link>
-          <Link to="/clubs" onClick={() => setMobileOpen(false)} className="block text-sm font-medium text-muted-foreground">Clubs</Link>
-          <Link to="/events" onClick={() => setMobileOpen(false)} className="block text-sm font-medium text-muted-foreground">Events</Link>
-          <Link to="/about" onClick={() => setMobileOpen(false)} className="block text-sm font-medium text-muted-foreground">About Us</Link>
-          <Link to="/contact" onClick={() => setMobileOpen(false)} className="block text-sm font-medium text-muted-foreground">Contact Us</Link>
+          <Link
+            to="/"
+            onClick={() => setMobileOpen(false)}
+            className="block text-sm font-medium text-foreground"
+          >
+            Home
+          </Link>
+          <Link
+            to="/clubs"
+            onClick={() => setMobileOpen(false)}
+            className="block text-sm font-medium text-muted-foreground"
+          >
+            Clubs
+          </Link>
+          <Link
+            to="/events"
+            onClick={() => setMobileOpen(false)}
+            className="block text-sm font-medium text-muted-foreground"
+          >
+            Events
+          </Link>
+          <Link
+            to="/about"
+            onClick={() => setMobileOpen(false)}
+            className="block text-sm font-medium text-muted-foreground"
+          >
+            About Us
+          </Link>
+          <Link
+            to="/contact"
+            onClick={() => setMobileOpen(false)}
+            className="block text-sm font-medium text-muted-foreground"
+          >
+            Contact Us
+          </Link>
+
           {user ? (
             <div className="pt-4 border-t border-border space-y-3">
-              {/* User info row */}
               <div className="flex items-center gap-3">
                 <span className="w-8 h-8 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center shrink-0">
                   {initials}
                 </span>
                 <div className="min-w-0">
-                  <p className="text-sm font-medium text-foreground truncate">{user.name}</p>
-                  <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                  <p className="text-sm font-medium text-foreground truncate">
+                    {user.name}
+                  </p>
+                  <p className="text-xs text-muted-foreground truncate">
+                    {user.email}
+                  </p>
                 </div>
               </div>
-              <Link to="/dashboard" onClick={() => setMobileOpen(false)} className="flex items-center gap-2 text-sm font-medium text-foreground">
+              <Link
+                to="/dashboard"
+                onClick={() => setMobileOpen(false)}
+                className="flex items-center gap-2 text-sm font-medium text-foreground"
+              >
                 <LayoutDashboard className="w-4 h-4" /> My Dashboard
               </Link>
-              {user.role === 'club_admin' && (
-                <Link to="/president" onClick={() => setMobileOpen(false)} className="flex items-center gap-2 text-sm font-medium text-foreground">
+              {user.role === "club_admin" && (
+                <Link
+                  to="/president"
+                  onClick={() => setMobileOpen(false)}
+                  className="flex items-center gap-2 text-sm font-medium text-foreground"
+                >
                   <Shield className="w-4 h-4" /> President Dashboard
+                </Link>
+              )}
+              {user.role === "staff" && (
+                <Link
+                  to="/staff"
+                  onClick={() => setMobileOpen(false)}
+                  className="flex items-center gap-2 text-sm font-medium text-primary"
+                >
+                  <ShieldAlert className="w-4 h-4" /> Staff Panel
                 </Link>
               )}
               <button
@@ -161,8 +287,20 @@ const Navbar = () => {
             </div>
           ) : (
             <div className="pt-4 flex flex-col gap-3">
-              <Link to="/signin" onClick={() => setMobileOpen(false)} className="text-sm font-medium text-foreground text-center">Sign In</Link>
-              <Link to="/signup" onClick={() => setMobileOpen(false)} className="btn-primary text-sm justify-center">Join Now</Link>
+              <Link
+                to="/signin"
+                onClick={() => setMobileOpen(false)}
+                className="text-sm font-medium text-foreground text-center"
+              >
+                Sign In
+              </Link>
+              <Link
+                to="/signup"
+                onClick={() => setMobileOpen(false)}
+                className="btn-primary text-sm justify-center"
+              >
+                Join Now
+              </Link>
             </div>
           )}
         </div>

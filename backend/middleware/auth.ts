@@ -33,3 +33,16 @@ export const requireAuth = async (
     res.status(401).json({ error: 'Invalid or expired token' });
   }
 };
+
+/** Middleware factory — require a specific role (or one of several roles). */
+export const requireRole = (...roles: string[]) =>
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    // First run requireAuth to populate res.locals.user
+    await requireAuth(req, res, async () => {
+      if (!roles.includes(res.locals.user?.role)) {
+        res.status(403).json({ error: 'Forbidden — insufficient role' });
+        return;
+      }
+      next();
+    });
+  };
