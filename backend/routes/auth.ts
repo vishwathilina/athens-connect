@@ -78,7 +78,8 @@ router.post('/register', validate(registerSchema), async (req: Request, res: Res
     });
 
     res.status(201).json({ data: { user, accessToken } });
-  } catch {
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -118,7 +119,8 @@ router.post('/login', validate(loginSchema), async (req: Request, res: Response)
 
     const { password_hash: _omit, ...safeUser } = user;
     res.json({ data: { user: safeUser, accessToken } });
-  } catch {
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -147,7 +149,8 @@ router.post('/refresh', async (req: Request, res: Response) => {
     const user = rows[0];
     const accessToken = await signAccessToken(user.id, user.role);
     res.json({ data: { accessToken } });
-  } catch {
+  } catch (err) {
+    console.error(err);
     res.status(401).json({ error: 'Invalid or expired refresh token' });
   }
 });

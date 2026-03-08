@@ -47,7 +47,8 @@ router.get('/me', requireAuth, async (req: Request, res: Response) => {
         rsvps,
       },
     });
-  } catch {
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

@@ -30,7 +30,8 @@ router.get('/', async (req: Request, res: Response) => {
 
     const { rows } = await db.query(query, params);
     res.json({ data: rows });
-  } catch {
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -57,7 +58,8 @@ router.get('/:slug', async (req: Request, res: Response) => {
     }
 
     res.json({ data: rows[0] });
-  } catch {
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -95,8 +97,14 @@ router.post('/:id/join', requireAuth, async (req: Request, res: Response) => {
       [userId, clubId]
     );
 
+    await db.query(
+      'UPDATE clubs SET member_count = member_count + 1 WHERE id = $1',
+      [clubId]
+    );
+
     res.status(201).json({ data: rows[0] });
-  } catch {
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -117,8 +125,14 @@ router.delete('/:id/join', requireAuth, async (req: Request, res: Response) => {
       return;
     }
 
+    await db.query(
+      'UPDATE clubs SET member_count = GREATEST(member_count - 1, 0) WHERE id = $1',
+      [clubId]
+    );
+
     res.json({ data: { message: 'Left club successfully' } });
-  } catch {
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

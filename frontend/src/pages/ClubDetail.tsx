@@ -1,7 +1,7 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ArrowUpRight, Users, Calendar, MapPin, ArrowLeft } from "lucide-react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { useClub, useJoinClub, useLeaveClub } from "@/hooks/useClubs";
 import { useDashboard } from "@/hooks/useDashboard";
 import { useAuth } from "@/contexts/AuthContext";
@@ -12,6 +12,7 @@ const ClubDetail = () => {
   const { data: club, isLoading, error } = useClub(slug);
   const { data: dashboard } = useDashboard();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const joinClub = useJoinClub();
   const leaveClub = useLeaveClub();
 
@@ -57,7 +58,7 @@ const ClubDetail = () => {
 
   const handleJoinToggle = () => {
     if (!user) {
-      window.location.href = '/signin';
+      navigate('/signin');
       return;
     }
     if (isMember) {

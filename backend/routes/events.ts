@@ -23,7 +23,7 @@ router.get('/', async (req: Request, res: Response) => {
 
     if (category) {
       params.push(category);
-      query += ` AND c.category = $${params.length}`;
+      query += ` AND c.name ILIKE $${params.length}`;
     }
     if (status) {
       params.push(status);
@@ -40,7 +40,8 @@ router.get('/', async (req: Request, res: Response) => {
 
     const { rows } = await db.query(query, params);
     res.json({ data: rows });
-  } catch {
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -68,7 +69,8 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     res.json({ data: rows[0] });
-  } catch {
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -97,7 +99,8 @@ router.post('/propose', requireAuth, validate(proposeSchema), async (req: Reques
     );
 
     res.status(201).json({ data: rows[0] });
-  } catch {
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

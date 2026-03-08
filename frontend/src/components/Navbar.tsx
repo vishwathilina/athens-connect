@@ -1,10 +1,19 @@
-import { ArrowUpRight, Menu, X } from "lucide-react";
+import { ArrowUpRight, Menu, X, LogOut, LayoutDashboard } from "lucide-react";
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/');
+    setMobileOpen(false);
+  };
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -32,8 +41,22 @@ const Navbar = () => {
 
         {/* Desktop Actions */}
         <div className="hidden md:flex items-center gap-4">
-          <Link to="/signin" className="text-sm font-medium text-foreground hover:text-primary transition-colors">Sign In</Link>
-          <Link to="/signup" className="btn-primary text-sm">Join Now</Link>
+          {user ? (
+            <>
+              <Link to="/dashboard" className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                <LayoutDashboard className="w-4 h-4" />
+                {user.name.split(' ')[0]}
+              </Link>
+              <button onClick={handleLogout} className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                <LogOut className="w-4 h-4" /> Log Out
+              </button>
+            </>
+          ) : (
+            <>
+              <Link to="/signin" className="text-sm font-medium text-foreground hover:text-primary transition-colors">Sign In</Link>
+              <Link to="/signup" className="btn-primary text-sm">Join Now</Link>
+            </>
+          )}
         </div>
 
         {/* Mobile Toggle */}
@@ -51,8 +74,17 @@ const Navbar = () => {
           <Link to="/about" onClick={() => setMobileOpen(false)} className="block text-sm font-medium text-muted-foreground">About Us</Link>
           <Link to="/contact" onClick={() => setMobileOpen(false)} className="block text-sm font-medium text-muted-foreground">Contact Us</Link>
           <div className="pt-4 flex flex-col gap-3">
-            <Link to="/signin" onClick={() => setMobileOpen(false)} className="text-sm font-medium text-foreground text-center">Sign In</Link>
-            <Link to="/signup" onClick={() => setMobileOpen(false)} className="btn-primary text-sm justify-center">Join Now</Link>
+            {user ? (
+              <>
+                <Link to="/dashboard" onClick={() => setMobileOpen(false)} className="text-sm font-medium text-foreground text-center">Dashboard</Link>
+                <button onClick={handleLogout} className="btn-outline-dark text-sm justify-center">Log Out <LogOut className="w-4 h-4" /></button>
+              </>
+            ) : (
+              <>
+                <Link to="/signin" onClick={() => setMobileOpen(false)} className="text-sm font-medium text-foreground text-center">Sign In</Link>
+                <Link to="/signup" onClick={() => setMobileOpen(false)} className="btn-primary text-sm justify-center">Join Now</Link>
+              </>
+            )}
           </div>
         </div>
       )}
