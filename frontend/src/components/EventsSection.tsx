@@ -1,32 +1,14 @@
-import { ArrowUpRight, Clock, MapPin } from "lucide-react";
-import event1 from "@/assets/event1.jpg";
-import event2 from "@/assets/event2.jpg";
-import event3 from "@/assets/event3.jpg";
-
-const events = [
-  {
-    date: "March 19-20, 2026",
-    title: "Spring Festival 2026",
-    description: "Experience the biggest campus celebration with live music, food stalls, club showcases, and exciting prizes.",
-    location: "Campus Main Quad",
-    start: "09:00 AM",
-    end: "12:00 AM",
-    images: [event1, event2],
-    color: "bg-primary",
-  },
-  {
-    date: "September 4-7, 2026",
-    title: "Hackathon Week 2026",
-    description: "Innovate and build with like-minded students. Workshops, mentorship, and prizes for top teams.",
-    location: "Engineering Hall",
-    start: "08:00 AM",
-    end: "12:00 AM",
-    images: [event2, event3],
-    color: "bg-primary",
-  },
-];
+import { ArrowUpRight, Clock, Calendar } from "lucide-react";
+import { Link } from "react-router-dom";
+import { useEvents } from "@/hooks/useEvents";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const EventsSection = () => {
+  const { data: events, isLoading, error } = useEvents();
+
+  // Show only up to 2 upcoming events on the homepage
+  const upcomingEvents = events?.filter(e => e.status === 'upcoming').slice(0, 2) || [];
+
   return (
     <section id="events" className="surface-dark rounded-[2rem] mx-4 md:mx-8 my-8">
       <div className="section-padding max-w-7xl mx-auto">
@@ -42,45 +24,87 @@ const EventsSection = () => {
 
         {/* Event Cards */}
         <div className="space-y-8">
-          {events.map((event, i) => (
-            <div key={i} className="border-t border-[hsl(var(--surface-dark-foreground)/0.15)] pt-8">
-              <div className="flex flex-col lg:flex-row lg:items-center gap-6">
-                {/* Info */}
-                <div className="flex-1">
-                  <p className="text-xs text-[hsl(var(--surface-dark-foreground)/0.5)] mb-2">{event.date}</p>
-                  <h3 className="font-display text-2xl font-bold mb-2">{event.title}</h3>
-                  <p className="text-sm text-[hsl(var(--surface-dark-foreground)/0.6)] mb-4 max-w-md">{event.description}</p>
-                  <div className="flex items-center gap-6 mb-4">
-                    <div className="flex items-center gap-2 text-xs text-[hsl(var(--surface-dark-foreground)/0.5)]">
-                      <Clock className="w-3.5 h-3.5" />
-                      Start<br />{event.start}
+          {isLoading ? (
+            <div className="space-y-8">
+              {[1, 2].map(i => (
+                <div key={i} className="border-t border-[hsl(var(--surface-dark-foreground)/0.15)] pt-8 flex flex-col lg:flex-row gap-6">
+                  <div className="flex-1 space-y-4">
+                    <Skeleton className="h-4 w-32 bg-white/10" />
+                    <Skeleton className="h-8 w-64 bg-white/10" />
+                    <Skeleton className="h-16 w-full max-w-md bg-white/10" />
+                    <Skeleton className="h-8 w-48 bg-white/10" />
+                    <Skeleton className="h-10 w-28 bg-white/10" />
+                  </div>
+                  <div className="flex gap-3">
+                    <Skeleton className="w-40 h-28 md:w-48 md:h-32 rounded-xl bg-white/10" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : error ? (
+            <div className="text-center py-10">
+              <p className="text-[hsl(var(--surface-dark-foreground)/0.8)]">Failed to load events.</p>
+            </div>
+          ) : upcomingEvents.length === 0 ? (
+            <div className="text-center py-10 border-t border-[hsl(var(--surface-dark-foreground)/0.15)] pt-12">
+              <Calendar className="w-10 h-10 mx-auto text-[hsl(var(--surface-dark-foreground)/0.4)] mb-4" />
+              <p className="text-[hsl(var(--surface-dark-foreground)/0.8)] font-medium">No upcoming events right now.</p>
+              <p className="text-[hsl(var(--surface-dark-foreground)/0.5)] text-sm mt-1">Check back later for more campus activities.</p>
+            </div>
+          ) : (
+            upcomingEvents.map((event) => {
+              const eventDate = new Date(event.event_date);
+              const dateStr = eventDate.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' });
+              const timeStr = eventDate.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+
+              return (
+                <div key={event.id} className="border-t border-[hsl(var(--surface-dark-foreground)/0.15)] pt-8">
+                  <div className="flex flex-col lg:flex-row lg:items-center gap-6">
+                    {/* Info */}
+                    <div className="flex-1">
+                      <p className="text-xs text-[hsl(var(--surface-dark-foreground)/0.5)] mb-2 capitalize">{event.club_name || event.status}</p>
+                      <h3 className="font-display text-2xl font-bold mb-2 text-[hsl(var(--surface-dark-foreground))]">{event.title}</h3>
+                      <p className="text-sm text-[hsl(var(--surface-dark-foreground)/0.6)] mb-4 max-w-md line-clamp-2">{event.description}</p>
+                      <div className="flex items-center gap-6 mb-4">
+                        <div className="flex items-center gap-2 text-xs text-[hsl(var(--surface-dark-foreground)/0.5)]">
+                          <Clock className="w-3.5 h-3.5" />
+                          <div>
+                            <span className="block">{dateStr}</span>
+                            <span className="block font-medium text-[hsl(var(--surface-dark-foreground))] mt-0.5">{timeStr}</span>
+                          </div>
+                        </div>
+                        <span className="tag-pill bg-primary/20 text-primary text-xs border-none px-3">At</span>
+                        <div className="flex items-center gap-2 text-xs text-[hsl(var(--surface-dark-foreground))] font-medium">
+                          {event.location}
+                        </div>
+                      </div>
+                      <Link to={`/events/${event.id}`} className="btn-primary text-sm inline-flex">
+                        Join Now <ArrowUpRight className="w-4 h-4" />
+                      </Link>
                     </div>
-                    <span className="tag-pill bg-primary text-primary-foreground text-xs border-none">Go</span>
-                    <div className="flex items-center gap-2 text-xs text-[hsl(var(--surface-dark-foreground)/0.5)]">
-                      End<br />{event.end}
+
+                    {/* Images */}
+                    <div className="flex gap-3">
+                      {event.banner_url ? (
+                        <img src={event.banner_url} alt={event.title} className="w-40 h-28 md:w-48 md:h-32 rounded-xl object-cover" />
+                      ) : (
+                        <div className="w-40 h-28 md:w-48 md:h-32 rounded-xl bg-white/5 flex items-center justify-center border border-white/10">
+                          <span className="font-display text-4xl font-bold text-white/20">{event.title.charAt(0)}</span>
+                        </div>
+                      )}
                     </div>
                   </div>
-                  <button className="btn-primary text-sm">
-                    Join Now <ArrowUpRight className="w-4 h-4" />
-                  </button>
                 </div>
-
-                {/* Images */}
-                <div className="flex gap-3">
-                  {event.images.map((img, j) => (
-                    <img key={j} src={img} alt={`${event.title} ${j + 1}`} className="w-40 h-28 md:w-48 md:h-32 rounded-xl object-cover" />
-                  ))}
-                </div>
-              </div>
-            </div>
-          ))}
+              );
+            })
+          )}
         </div>
 
         {/* View All */}
         <div className="text-right mt-8">
-          <a href="#" className="text-sm font-medium text-primary hover:underline inline-flex items-center gap-1">
+          <Link to="/events" className="text-sm font-medium text-primary hover:underline inline-flex items-center gap-1">
             View all events <ArrowUpRight className="w-4 h-4" />
-          </a>
+          </Link>
         </div>
       </div>
     </section>
