@@ -16,6 +16,7 @@ import SignUp from "./pages/SignUp";
 import Dashboard from "./pages/Dashboard";
 import PresidentDashboard from "./pages/PresidentDashboard";
 import NotFound from "./pages/NotFound";
+import StaffDashboard from "./pages/StaffDashboard";
 
 const queryClient = new QueryClient();
 

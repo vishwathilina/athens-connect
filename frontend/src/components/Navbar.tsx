@@ -1,4 +1,8 @@
 import { ArrowUpRight, Menu, X, ChevronDown, LogOut, User, Shield } from "lucide-react";
+import { ArrowUpRight, Menu, X, ChevronDown, LogOut, User, ShieldAlert } from "lucide-react";
+import { ArrowUpRight, Menu, X, LogOut, LayoutDashboard } from "lucide-react";
+import { useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import logo from "@/assets/logo.svg";
@@ -56,6 +60,11 @@ const Navbar = () => {
           <Link to="/clubs" className={`text-sm font-medium transition-colors ${isActive("/clubs") ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}>Clubs</Link>
           <Link to="/events" className={`text-sm font-medium transition-colors ${isActive("/events") ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}>Events</Link>
           <Link to="/about" className={`text-sm font-medium transition-colors ${isActive("/about") ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}>About Us</Link>
+          {user?.role === 'staff' && (
+            <Link to="/staff" className={`text-sm font-medium flex items-center gap-1 transition-colors ${isActive("/staff") ? "text-primary" : "text-muted-foreground hover:text-primary"}`}>
+              <ShieldAlert className="w-3.5 h-3.5" /> Staff Panel
+            </Link>
+          )}
           <Link to="/contact" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors border border-border rounded-full px-4 py-1.5 flex items-center gap-1">
             Contact Us <ArrowUpRight className="w-3.5 h-3.5" />
           </Link>
