@@ -1,9 +1,13 @@
 <<<<<<< HEAD
+import { ArrowUpRight, Menu, X, ChevronDown, LogOut, User, ShieldAlert } from "lucide-react";
+=======
+<<<<<<< HEAD
 import { ArrowUpRight, Menu, X, LogOut, LayoutDashboard } from "lucide-react";
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 =======
 import { ArrowUpRight, Menu, X, ChevronDown, LogOut, User } from "lucide-react";
+>>>>>>> main
 import { useState, useRef, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import logo from "@/assets/logo.svg";
@@ -71,6 +75,11 @@ const Navbar = () => {
           <Link to="/clubs" className={`text-sm font-medium transition-colors ${isActive("/clubs") ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}>Clubs</Link>
           <Link to="/events" className={`text-sm font-medium transition-colors ${isActive("/events") ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}>Events</Link>
           <Link to="/about" className={`text-sm font-medium transition-colors ${isActive("/about") ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}>About Us</Link>
+          {user?.role === 'staff' && (
+            <Link to="/staff" className={`text-sm font-medium flex items-center gap-1 transition-colors ${isActive("/staff") ? "text-primary" : "text-muted-foreground hover:text-primary"}`}>
+              <ShieldAlert className="w-3.5 h-3.5" /> Staff Panel
+            </Link>
+          )}
           <Link to="/contact" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors border border-border rounded-full px-4 py-1.5 flex items-center gap-1">
             Contact Us <ArrowUpRight className="w-3.5 h-3.5" />
           </Link>
@@ -119,6 +128,14 @@ const Navbar = () => {
                   >
                     <User className="w-4 h-4" /> My Dashboard
                   </Link>
+                  {user?.role === 'staff' && (
+                    <Link
+                      to="/staff"
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-primary hover:bg-secondary transition-colors"
+                    >
+                      <ShieldAlert className="w-4 h-4" /> Staff Panel
+                    </Link>
+                  )}
                   <button
                     onClick={handleLogout}
                     className="w-full flex items-center gap-2 px-4 py-2 text-sm text-destructive hover:bg-secondary transition-colors"
@@ -182,6 +199,11 @@ const Navbar = () => {
               <Link to="/dashboard" onClick={() => setMobileOpen(false)} className="flex items-center gap-2 text-sm font-medium text-foreground">
                 <User className="w-4 h-4" /> My Dashboard
               </Link>
+              {user?.role === 'staff' && (
+                <Link to="/staff" onClick={() => setMobileOpen(false)} className="flex items-center gap-2 text-sm font-medium text-primary">
+                  <ShieldAlert className="w-4 h-4" /> Staff Panel
+                </Link>
+              )}
               <button
                 onClick={handleLogout}
                 className="flex items-center gap-2 text-sm font-medium text-destructive"

@@ -21,6 +21,28 @@ export interface Club {
   is_active: boolean;
 }
 
+/** Extended club shape returned by staff endpoints */
+export interface StaffClub extends Club {
+  admin_id: string;
+  admin_name: string;
+  admin_email: string;
+  president_id: string | null;
+  president_name: string | null;
+  president_email: string | null;
+  created_at: string;
+}
+
+export interface ClubMember {
+  id: string;         // membership id
+  role: 'member' | 'moderator' | 'admin';
+  joined_at: string;
+  user_id: string;
+  name: string;
+  email: string;
+  student_id: string;
+  avatar_url: string | null;
+}
+
 export interface Event {
   id: string;
   title: string;
