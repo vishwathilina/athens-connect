@@ -1,13 +1,7 @@
-<<<<<<< HEAD
-import { ArrowUpRight, Menu, X, LogOut, LayoutDashboard } from "lucide-react";
-import { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-=======
-import { ArrowUpRight, Menu, X, ChevronDown, LogOut, User } from "lucide-react";
+import { ArrowUpRight, Menu, X, ChevronDown, LogOut, User, LayoutDashboard, Shield } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import logo from "@/assets/logo.svg";
->>>>>>> e1ffc206dd9fe94cf2929b49e41fb913c960ce71
 import { useAuth } from "@/contexts/AuthContext";
 
 const Navbar = () => {
@@ -16,16 +10,7 @@ const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
-<<<<<<< HEAD
-
-  const handleLogout = async () => {
-    await logout();
-    navigate('/');
-    setMobileOpen(false);
-  };
-=======
   const dropdownRef = useRef<HTMLDivElement>(null);
->>>>>>> e1ffc206dd9fe94cf2929b49e41fb913c960ce71
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -79,17 +64,6 @@ const Navbar = () => {
         {/* Desktop Actions */}
         <div className="hidden md:flex items-center gap-4">
           {user ? (
-<<<<<<< HEAD
-            <>
-              <Link to="/dashboard" className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                <LayoutDashboard className="w-4 h-4" />
-                {user.name.split(' ')[0]}
-              </Link>
-              <button onClick={handleLogout} className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                <LogOut className="w-4 h-4" /> Log Out
-              </button>
-            </>
-=======
             /* ── Profile Dropdown ── */
             <div className="relative" ref={dropdownRef}>
               <button
@@ -117,8 +91,16 @@ const Navbar = () => {
                     to="/dashboard"
                     className="flex items-center gap-2 px-4 py-2 text-sm text-foreground hover:bg-secondary transition-colors"
                   >
-                    <User className="w-4 h-4" /> My Dashboard
+                    <LayoutDashboard className="w-4 h-4" /> My Dashboard
                   </Link>
+                  {user.role === 'club_admin' && (
+                    <Link
+                      to="/president"
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-foreground hover:bg-secondary transition-colors"
+                    >
+                      <Shield className="w-4 h-4" /> President Dashboard
+                    </Link>
+                  )}
                   <button
                     onClick={handleLogout}
                     className="w-full flex items-center gap-2 px-4 py-2 text-sm text-destructive hover:bg-secondary transition-colors"
@@ -128,7 +110,6 @@ const Navbar = () => {
                 </div>
               )}
             </div>
->>>>>>> e1ffc206dd9fe94cf2929b49e41fb913c960ce71
           ) : (
             <>
               <Link to="/signin" className="text-sm font-medium text-foreground hover:text-primary transition-colors">Sign In</Link>
@@ -151,22 +132,6 @@ const Navbar = () => {
           <Link to="/events" onClick={() => setMobileOpen(false)} className="block text-sm font-medium text-muted-foreground">Events</Link>
           <Link to="/about" onClick={() => setMobileOpen(false)} className="block text-sm font-medium text-muted-foreground">About Us</Link>
           <Link to="/contact" onClick={() => setMobileOpen(false)} className="block text-sm font-medium text-muted-foreground">Contact Us</Link>
-<<<<<<< HEAD
-          <div className="pt-4 flex flex-col gap-3">
-            {user ? (
-              <>
-                <Link to="/dashboard" onClick={() => setMobileOpen(false)} className="text-sm font-medium text-foreground text-center">Dashboard</Link>
-                <button onClick={handleLogout} className="btn-outline-dark text-sm justify-center">Log Out <LogOut className="w-4 h-4" /></button>
-              </>
-            ) : (
-              <>
-                <Link to="/signin" onClick={() => setMobileOpen(false)} className="text-sm font-medium text-foreground text-center">Sign In</Link>
-                <Link to="/signup" onClick={() => setMobileOpen(false)} className="btn-primary text-sm justify-center">Join Now</Link>
-              </>
-            )}
-          </div>
-=======
-
           {user ? (
             <div className="pt-4 border-t border-border space-y-3">
               {/* User info row */}
@@ -180,8 +145,13 @@ const Navbar = () => {
                 </div>
               </div>
               <Link to="/dashboard" onClick={() => setMobileOpen(false)} className="flex items-center gap-2 text-sm font-medium text-foreground">
-                <User className="w-4 h-4" /> My Dashboard
+                <LayoutDashboard className="w-4 h-4" /> My Dashboard
               </Link>
+              {user.role === 'club_admin' && (
+                <Link to="/president" onClick={() => setMobileOpen(false)} className="flex items-center gap-2 text-sm font-medium text-foreground">
+                  <Shield className="w-4 h-4" /> President Dashboard
+                </Link>
+              )}
               <button
                 onClick={handleLogout}
                 className="flex items-center gap-2 text-sm font-medium text-destructive"
@@ -195,7 +165,6 @@ const Navbar = () => {
               <Link to="/signup" onClick={() => setMobileOpen(false)} className="btn-primary text-sm justify-center">Join Now</Link>
             </div>
           )}
->>>>>>> e1ffc206dd9fe94cf2929b49e41fb913c960ce71
         </div>
       )}
     </nav>
