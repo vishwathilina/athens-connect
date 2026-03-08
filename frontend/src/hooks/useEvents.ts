@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Event } from '../../../shared/types';
 import { useAuth } from '../contexts/AuthContext';
+import { toast } from 'sonner';
 
 const API = import.meta.env.VITE_API_URL ?? '';
 
@@ -47,10 +48,14 @@ export function useRsvp() {
       if (!res.ok) throw new Error(json.error ?? 'Failed to RSVP');
       return json.data!;
     },
-    onSuccess: (_data, eventId) => {
+    onSuccess: (data, eventId) => {
       qc.invalidateQueries({ queryKey: ['events', eventId] });
       qc.invalidateQueries({ queryKey: ['dashboard'] });
+      toast.success(data.status === 'confirmed' ? "RSVP Confirmed!" : "Added to waitlist!");
     },
+    onError: (err: any) => {
+      toast.error(err.message || 'Failed to RSVP');
+    }
   });
 }
 
@@ -71,6 +76,10 @@ export function useCancelRsvp() {
     onSuccess: (_data, eventId) => {
       qc.invalidateQueries({ queryKey: ['events', eventId] });
       qc.invalidateQueries({ queryKey: ['dashboard'] });
+      toast.success("RSVP Cancelled");
     },
+    onError: (err: any) => {
+      toast.error(err.message || 'Failed to cancel RSVP');
+    }
   });
 }
