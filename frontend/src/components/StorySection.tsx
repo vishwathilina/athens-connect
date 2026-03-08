@@ -1,4 +1,5 @@
 import { ArrowUpRight } from "lucide-react";
+import { Link } from "react-router-dom";
 import clubMeeting from "@/assets/club-meeting.jpg";
 import avatarStory from "@/assets/avatar-story.png";
 
@@ -8,9 +9,9 @@ const StorySection = () => {
       <div className="flex flex-col md:flex-row md:items-start gap-12 md:gap-20">
         {/* Left Tabs */}
         <div className="flex flex-col gap-3 shrink-0">
-          <button className="tag-pill bg-foreground text-background text-sm">Our Story</button>
+          <Link to="/about" className="tag-pill bg-foreground text-background text-sm inline-block text-center">Our Story</Link>
           <button className="tag-pill text-muted-foreground text-sm hover:text-foreground transition-colors">Activity</button>
-          <button className="tag-pill text-muted-foreground text-sm hover:text-foreground transition-colors">Find Clubs</button>
+          <Link to="/clubs" className="tag-pill text-muted-foreground text-sm hover:text-foreground transition-colors inline-block text-center">Find Clubs</Link>
         </div>
 
         {/* Right Content */}
