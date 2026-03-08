@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
 import type { User } from '../../../shared/types';
 
-const API = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
+const API = import.meta.env.VITE_API_URL ?? '';
 
 interface AuthState {
   user: User | null;

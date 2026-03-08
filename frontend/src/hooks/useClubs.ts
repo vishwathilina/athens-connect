@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Club, Membership } from '../../../shared/types';
 import { useAuth } from '../contexts/AuthContext';
 
-const API = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
+const API = import.meta.env.VITE_API_URL ?? '';
 
 export function useClubs(category?: string, search?: string) {
   return useQuery({
@@ -39,9 +39,14 @@ export function useJoinClub() {
 
   return useMutation({
     mutationFn: async (clubId: string) => {
+      if (!accessToken) throw new Error('You must be signed in to join a club');
       const res = await fetch(`${API}/api/clubs/${clubId}/join`, {
         method: 'POST',
-        headers: { Authorization: `Bearer ${accessToken}` },
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
       });
       const json = await res.json() as { data?: Membership; error?: string };
       if (!res.ok) throw new Error(json.error ?? 'Failed to join club');
@@ -61,9 +66,13 @@ export function useLeaveClub() {
 
   return useMutation({
     mutationFn: async (clubId: string) => {
+      if (!accessToken) throw new Error('You must be signed in to leave a club');
       const res = await fetch(`${API}/api/clubs/${clubId}/join`, {
         method: 'DELETE',
-        headers: { Authorization: `Bearer ${accessToken}` },
+        credentials: 'include',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
       });
       const json = await res.json() as { data?: unknown; error?: string };
       if (!res.ok) throw new Error(json.error ?? 'Failed to leave club');
