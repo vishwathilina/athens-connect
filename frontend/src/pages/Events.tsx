@@ -1,33 +1,34 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { ArrowUpRight, Clock, MapPin, Calendar, Search } from "lucide-react";
-import event1 from "@/assets/event1.jpg";
-import event2 from "@/assets/event2.jpg";
-import event3 from "@/assets/event3.jpg";
-import clubMeeting from "@/assets/club-meeting.jpg";
+import { ArrowUpRight, Clock, MapPin, Search } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState } from "react";
-
-const eventsData = [
-  { id: 1, title: "Spring Festival 2026", date: "March 19-20, 2026", category: "Festival", location: "Campus Main Quad", start: "09:00 AM", end: "12:00 AM", image: event1, description: "Experience the biggest campus celebration with live music, food stalls, club showcases, and exciting prizes." },
-  { id: 2, title: "Hackathon Week 2026", date: "April 4-7, 2026", category: "Technology", location: "Engineering Hall", start: "08:00 AM", end: "10:00 PM", image: event2, description: "Innovate and build with like-minded students. Workshops, mentorship, and prizes for top teams." },
-  { id: 3, title: "Debate Championship", date: "April 15, 2026", category: "Academic", location: "Humanities Auditorium", start: "10:00 AM", end: "06:00 PM", image: event3, description: "Watch the best debaters compete in the annual inter-university championship." },
-  { id: 4, title: "Club Fair 2026", date: "September 5, 2026", category: "Social", location: "Student Union Lawn", start: "11:00 AM", end: "04:00 PM", image: clubMeeting, description: "Discover 50+ clubs, meet current members, and sign up for your favorites all in one place." },
-  { id: 5, title: "Music Night", date: "May 10, 2026", category: "Arts", location: "Performing Arts Center", start: "07:00 PM", end: "11:00 PM", image: event1, description: "An evening of live performances featuring student bands, solo artists, and surprise guest performers." },
-  { id: 6, title: "Career Networking Mixer", date: "October 12, 2026", category: "Business", location: "Commerce Building Atrium", start: "05:00 PM", end: "08:00 PM", image: event2, description: "Connect with industry professionals, alumni, and fellow students at our annual career mixer." },
-];
+import { useEvents } from "@/hooks/useEvents";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const categories = ["All", "Festival", "Technology", "Academic", "Social", "Arts", "Business"];
+
+const EventsSkeleton = () => (
+  <div className="space-y-6 mb-16">
+    {Array.from({ length: 4 }).map((_, i) => (
+      <div key={i} className="flex flex-col md:flex-row gap-6 border border-border rounded-2xl p-5">
+        <Skeleton className="w-full md:w-64 h-44 rounded-xl shrink-0" />
+        <div className="flex-1 space-y-3 py-2">
+          <Skeleton className="h-4 w-24" />
+          <Skeleton className="h-6 w-2/3" />
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-1/2" />
+        </div>
+      </div>
+    ))}
+  </div>
+);
 
 const Events = () => {
   const [activeCategory, setActiveCategory] = useState("All");
   const [search, setSearch] = useState("");
 
-  const filtered = eventsData.filter(e => {
-    const matchCat = activeCategory === "All" || e.category === activeCategory;
-    const matchSearch = e.title.toLowerCase().includes(search.toLowerCase());
-    return matchCat && matchSearch;
-  });
+  const { data: events = [], isLoading, error } = useEvents(activeCategory, search);
 
   return (
     <div className="min-h-screen bg-background">
@@ -38,7 +39,7 @@ const Events = () => {
           <div>
             <span className="tag-pill bg-primary text-primary-foreground text-xs mb-4 inline-block">UPCOMING</span>
             <h1 className="font-display text-4xl md:text-6xl font-bold text-foreground leading-tight">
-              Campus Events<br />& Happenings.
+              Campus Events<br />&amp; Happenings.
             </h1>
           </div>
           <div className="relative max-w-sm w-full">
@@ -67,34 +68,58 @@ const Events = () => {
         </div>
 
         {/* Events List */}
-        <div className="space-y-6 mb-16">
-          {filtered.map(event => (
-            <Link to={`/events/${event.id}`} key={event.id} className="group block">
-              <div className="flex flex-col md:flex-row gap-6 border border-border rounded-2xl p-5 hover:border-primary transition-colors">
-                <div className="relative w-full md:w-64 h-44 rounded-xl overflow-hidden shrink-0">
-                  <img src={event.image} alt={event.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                  <span className="absolute top-3 left-3 tag-pill bg-background/90 backdrop-blur-sm text-xs border-none">{event.category}</span>
-                </div>
-                <div className="flex-1 flex flex-col justify-between">
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-1">{event.date}</p>
-                    <h3 className="font-display font-bold text-xl text-foreground mb-2 group-hover:text-primary transition-colors">{event.title}</h3>
-                    <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{event.description}</p>
-                  </div>
-                  <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" /> {event.location}</span>
-                    <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> {event.start} - {event.end}</span>
-                  </div>
-                </div>
-                <div className="flex items-center">
-                  <ArrowUpRight className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
+        {isLoading && <EventsSkeleton />}
 
-        {filtered.length === 0 && (
+        {error && (
+          <div className="text-center py-20">
+            <p className="text-muted-foreground text-lg">Failed to load events. Please try again.</p>
+          </div>
+        )}
+
+        {!isLoading && !error && (
+          <div className="space-y-6 mb-16">
+            {events.map(event => {
+              const eventDate = new Date(event.event_date);
+              const dateStr = eventDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+              const timeStr = eventDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
+              return (
+                <Link to={`/events/${event.id}`} key={event.id} className="group block">
+                  <div className="flex flex-col md:flex-row gap-6 border border-border rounded-2xl p-5 hover:border-primary transition-colors">
+                    <div className="relative w-full md:w-64 h-44 rounded-xl overflow-hidden shrink-0 bg-secondary">
+                      {event.banner_url ? (
+                        <img src={event.banner_url} alt={event.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-4xl font-display font-bold text-muted-foreground/20">
+                          {event.title[0]}
+                        </div>
+                      )}
+                      {event.club_name && (
+                        <span className="absolute top-3 left-3 tag-pill bg-background/90 backdrop-blur-sm text-xs border-none">{event.club_name}</span>
+                      )}
+                    </div>
+                    <div className="flex-1 flex flex-col justify-between">
+                      <div>
+                        <p className="text-xs text-muted-foreground mb-1">{dateStr}</p>
+                        <h3 className="font-display font-bold text-xl text-foreground mb-2 group-hover:text-primary transition-colors">{event.title}</h3>
+                        <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{event.description}</p>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
+                        <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" /> {event.location}</span>
+                        <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> {timeStr}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center">
+                      <ArrowUpRight className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        )}
+
+        {!isLoading && !error && events.length === 0 && (
           <div className="text-center py-20">
             <p className="text-muted-foreground text-lg">No events found matching your criteria.</p>
           </div>

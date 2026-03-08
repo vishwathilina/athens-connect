@@ -1,18 +1,32 @@
 import Navbar from "@/components/Navbar";
 import { ArrowUpRight } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 
 const SignUp = () => {
-  const [form, setForm] = useState({ name: "", email: "", password: "", confirm: "" });
+  const [form, setForm] = useState({ student_id: "", name: "", email: "", password: "", confirm: "" });
+  const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { register } = useAuth();
+  const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (form.password !== form.confirm) {
-      alert("Passwords don't match!");
+      setError("Passwords don't match!");
       return;
     }
-    alert("Sign up functionality requires backend integration.");
+    setError(null);
+    setIsSubmitting(true);
+    try {
+      await register({ student_id: form.student_id, name: form.name, email: form.email, password: form.password });
+      navigate("/");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Registration failed");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -37,6 +51,17 @@ const SignUp = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="text-xs text-muted-foreground mb-1.5 block">Student ID</label>
+              <input
+                type="text"
+                required
+                value={form.student_id}
+                onChange={(e) => setForm(prev => ({ ...prev, student_id: e.target.value }))}
+                className="w-full bg-secondary rounded-xl px-4 py-3 text-sm text-foreground outline-none focus:ring-2 focus:ring-primary"
+                placeholder="e.g. 20240001"
+              />
+            </div>
             <div>
               <label className="text-xs text-muted-foreground mb-1.5 block">Full Name</label>
               <input
@@ -81,9 +106,10 @@ const SignUp = () => {
                 placeholder="••••••••"
               />
             </div>
-            <button type="submit" className="btn-primary w-full justify-center text-sm">
-              Create Account <ArrowUpRight className="w-4 h-4" />
+            <button type="submit" className="btn-primary w-full justify-center text-sm" disabled={isSubmitting}>
+              {isSubmitting ? "Creating account…" : "Create Account"} <ArrowUpRight className="w-4 h-4" />
             </button>
+            {error && <p className="text-sm text-destructive text-center">{error}</p>}
           </form>
 
           <div className="mt-6 text-center">

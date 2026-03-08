@@ -1,26 +1,52 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ArrowUpRight, Clock, MapPin, Calendar, Users, ArrowLeft, Share2 } from "lucide-react";
-import event1 from "@/assets/event1.jpg";
-import event2 from "@/assets/event2.jpg";
-import event3 from "@/assets/event3.jpg";
-import clubMeeting from "@/assets/club-meeting.jpg";
 import { useParams, Link } from "react-router-dom";
-
-const eventsData = [
-  { id: 1, title: "Spring Festival 2026", date: "March 19-20, 2026", category: "Festival", location: "Campus Main Quad", start: "09:00 AM", end: "12:00 AM", image: event1, description: "Experience the biggest campus celebration with live music, food stalls, club showcases, and exciting prizes.", longDescription: "The Spring Festival is our flagship annual event bringing together the entire university community. Over two days, enjoy live performances from student bands and guest artists, browse 30+ food stalls featuring cuisines from around the world, and discover new clubs at our showcase area. Highlights include the talent show finals, outdoor movie screening, and the legendary closing night fireworks. Last year, over 5,000 students attended — this year, we're going even bigger.", attendees: 3200, organizer: "Student Union" },
-  { id: 2, title: "Hackathon Week 2026", date: "April 4-7, 2026", category: "Technology", location: "Engineering Hall", start: "08:00 AM", end: "10:00 PM", image: event2, description: "Innovate and build with like-minded students.", longDescription: "Hackathon Week is a 4-day innovation marathon where teams of 2-5 students build solutions to real-world challenges. With tracks in AI, sustainability, health tech, and social impact, there's something for everyone. Industry mentors from top tech companies provide guidance, and prizes include internship opportunities, cash awards, and incubator access. No coding experience required — we have beginner-friendly tracks too!", attendees: 800, organizer: "Tech & Innovation Club" },
-  { id: 3, title: "Debate Championship", date: "April 15, 2026", category: "Academic", location: "Humanities Auditorium", start: "10:00 AM", end: "06:00 PM", image: event3, description: "Watch the best debaters compete.", longDescription: "The Annual Debate Championship brings together the top university debate teams from across the region. Watch as skilled orators tackle pressing global issues in a structured competitive format. The event features preliminary rounds, semifinals, and a thrilling grand finale judged by renowned academics and public figures.", attendees: 500, organizer: "Debate Society" },
-  { id: 4, title: "Club Fair 2026", date: "September 5, 2026", category: "Social", location: "Student Union Lawn", start: "11:00 AM", end: "04:00 PM", image: clubMeeting, description: "Discover 50+ clubs and sign up.", longDescription: "The Club Fair is the ultimate gateway to campus life. Over 50 clubs set up interactive booths where you can meet current members, watch demonstrations, and sign up on the spot. From academic societies to athletic teams, arts collectives to social impact organizations — find your community. Free food, live music, and giveaways make it a day you won't want to miss.", attendees: 4000, organizer: "Student Affairs Office" },
-  { id: 5, title: "Music Night", date: "May 10, 2026", category: "Arts", location: "Performing Arts Center", start: "07:00 PM", end: "11:00 PM", image: event1, description: "An evening of live performances.", longDescription: "Music Night showcases the incredible musical talent on our campus. From solo acoustic sets to full band performances, jazz to rock, classical to hip-hop — the evening celebrates diversity in sound. Past events have featured surprise appearances by professional artists, and this year promises to be the most spectacular yet.", attendees: 1200, organizer: "Music & Band Society" },
-  { id: 6, title: "Career Networking Mixer", date: "October 12, 2026", category: "Business", location: "Commerce Building Atrium", start: "05:00 PM", end: "08:00 PM", image: event2, description: "Connect with industry professionals.", longDescription: "The Career Networking Mixer connects students with industry leaders, successful alumni, and recruiters from top companies. Enjoy an evening of structured networking sessions, panel discussions on career trends, and one-on-one mentorship opportunities. Professional attire recommended. Past attendees have secured internships and full-time positions through connections made at this event.", attendees: 600, organizer: "Entrepreneurship Club" },
-];
+import { useEvent, useRsvp, useCancelRsvp } from "@/hooks/useEvents";
+import { useDashboard } from "@/hooks/useDashboard";
+import { useAuth } from "@/contexts/AuthContext";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const EventDetail = () => {
-  const { id } = useParams();
-  const event = eventsData.find(e => e.id === Number(id));
+  const { id } = useParams<{ id: string }>();
+  const { data: event, isLoading, error } = useEvent(id!);
+  const { data: dashboard } = useDashboard();
+  const { accessToken } = useAuth();
+  const rsvp = useRsvp();
+  const cancelRsvp = useCancelRsvp();
 
-  if (!event) {
+  const hasRsvp = dashboard?.rsvps?.some(r => r.event_id === event?.id) ?? false;
+  const isMutating = rsvp.isPending || cancelRsvp.isPending;
+
+  const eventDate = event ? new Date(event.event_date) : null;
+  const dateStr = eventDate ? eventDate.toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" }) : "";
+  const timeStr = eventDate ? eventDate.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" }) : "";
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="pt-28 section-padding max-w-7xl mx-auto">
+          <Skeleton className="h-96 w-full rounded-2xl mb-10" />
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+            <div className="lg:col-span-2 space-y-4">
+              <Skeleton className="h-8 w-48" />
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-3/4" />
+            </div>
+            <div className="space-y-4">
+              <Skeleton className="h-40 w-full rounded-2xl" />
+              <Skeleton className="h-48 w-full rounded-2xl" />
+            </div>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (error || !event) {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
@@ -44,12 +70,20 @@ const EventDetail = () => {
 
         {/* Hero */}
         <div className="relative rounded-2xl overflow-hidden h-72 md:h-[28rem] mb-10">
-          <img src={event.image} alt={event.title} className="w-full h-full object-cover" />
+          {event.banner_url ? (
+            <img src={event.banner_url} alt={event.title} className="w-full h-full object-cover" />
+          ) : (
+            <div className="w-full h-full bg-secondary flex items-center justify-center">
+              <span className="font-display text-8xl font-bold text-muted-foreground/30">
+                {event.title.charAt(0)}
+              </span>
+            </div>
+          )}
           <div className="absolute inset-0 bg-gradient-to-t from-[hsl(var(--surface-dark))] via-[hsl(var(--surface-dark)/0.3)] to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12">
-            <span className="tag-pill bg-primary text-primary-foreground text-xs border-none mb-4 inline-block">{event.category}</span>
+            <span className="tag-pill bg-primary text-primary-foreground text-xs border-none mb-4 inline-block">{event.status}</span>
             <h1 className="font-display text-3xl md:text-5xl font-bold text-[hsl(var(--surface-dark-foreground))] mb-2">{event.title}</h1>
-            <p className="text-sm text-[hsl(var(--surface-dark-foreground)/0.7)]">{event.date}</p>
+            <p className="text-sm text-[hsl(var(--surface-dark-foreground)/0.7)]">{dateStr}</p>
           </div>
         </div>
 
@@ -58,7 +92,7 @@ const EventDetail = () => {
           {/* Main Content */}
           <div className="lg:col-span-2">
             <h2 className="font-display text-2xl font-bold text-foreground mb-4">About This Event</h2>
-            <p className="text-muted-foreground leading-relaxed mb-8">{event.longDescription}</p>
+            <p className="text-muted-foreground leading-relaxed mb-8">{event.description}</p>
 
             <h3 className="font-display text-xl font-bold text-foreground mb-4">What To Expect</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -77,12 +111,42 @@ const EventDetail = () => {
             <div className="bg-secondary rounded-2xl p-6">
               <div className="flex items-center gap-3 mb-2">
                 <Users className="w-5 h-5 text-primary" />
-                <span className="font-display font-bold text-2xl text-foreground">{event.attendees?.toLocaleString()}</span>
+                <span className="font-display font-bold text-2xl text-foreground">{event.registered_count.toLocaleString()}</span>
               </div>
-              <p className="text-xs text-muted-foreground mb-5">people attending</p>
-              <button className="btn-primary w-full justify-center text-sm mb-3">
-                RSVP Now <ArrowUpRight className="w-4 h-4" />
-              </button>
+              <p className="text-xs text-muted-foreground mb-1">
+                {event.total_seats > 0 ? `of ${event.total_seats.toLocaleString()} seats filled` : "people attending"}
+              </p>
+              {event.total_seats > 0 && (
+                <div className="w-full bg-muted rounded-full h-1.5 mb-5">
+                  <div
+                    className="bg-primary h-1.5 rounded-full"
+                    style={{ width: `${Math.min(100, (event.registered_count / event.total_seats) * 100)}%` }}
+                  />
+                </div>
+              )}
+              {accessToken ? (
+                hasRsvp ? (
+                  <button
+                    className="btn-outline-dark w-full justify-center text-sm mb-3"
+                    onClick={() => cancelRsvp.mutate(event.id)}
+                    disabled={isMutating}
+                  >
+                    {cancelRsvp.isPending ? "Cancelling…" : "Cancel RSVP"}
+                  </button>
+                ) : (
+                  <button
+                    className="btn-primary w-full justify-center text-sm mb-3"
+                    onClick={() => rsvp.mutate(event.id)}
+                    disabled={isMutating || event.status === "completed" || event.status === "cancelled"}
+                  >
+                    {rsvp.isPending ? "Registering…" : <>RSVP Now <ArrowUpRight className="w-4 h-4" /></>}
+                  </button>
+                )
+              ) : (
+                <Link to="/signin" className="btn-primary w-full justify-center text-sm mb-3 inline-flex">
+                  Sign in to RSVP <ArrowUpRight className="w-4 h-4" />
+                </Link>
+              )}
               <button className="btn-outline-dark w-full justify-center text-sm">
                 <Share2 className="w-4 h-4" /> Share Event
               </button>
@@ -94,14 +158,14 @@ const EventDetail = () => {
                 <Calendar className="w-4 h-4 text-primary mt-0.5" />
                 <div>
                   <p className="text-xs text-muted-foreground">Date</p>
-                  <p className="text-sm font-medium text-foreground">{event.date}</p>
+                  <p className="text-sm font-medium text-foreground">{dateStr}</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
                 <Clock className="w-4 h-4 text-primary mt-0.5" />
                 <div>
                   <p className="text-xs text-muted-foreground">Time</p>
-                  <p className="text-sm font-medium text-foreground">{event.start} - {event.end}</p>
+                  <p className="text-sm font-medium text-foreground">{timeStr}</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
@@ -111,13 +175,15 @@ const EventDetail = () => {
                   <p className="text-sm font-medium text-foreground">{event.location}</p>
                 </div>
               </div>
-              <div className="flex items-start gap-3">
-                <Users className="w-4 h-4 text-primary mt-0.5" />
-                <div>
-                  <p className="text-xs text-muted-foreground">Organized by</p>
-                  <p className="text-sm font-medium text-foreground">{event.organizer}</p>
+              {event.club_name && (
+                <div className="flex items-start gap-3">
+                  <Users className="w-4 h-4 text-primary mt-0.5" />
+                  <div>
+                    <p className="text-xs text-muted-foreground">Organized by</p>
+                    <p className="text-sm font-medium text-foreground">{event.club_name}</p>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
