@@ -1,6 +1,7 @@
 import { ArrowUpRight, Menu, X } from "lucide-react";
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import logo from "@/assets/logo.svg";
 
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -13,10 +14,7 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto flex items-center justify-between px-6 md:px-12 py-4">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
-            <span className="font-display font-bold text-primary-foreground text-sm">A</span>
-          </div>
-          <span className="font-display font-bold text-lg text-foreground">ATHENS</span>
+          <img src={logo} alt="Athens Connect Logo" className="h-8 w-auto" />
         </Link>
 
         {/* Desktop Links */}

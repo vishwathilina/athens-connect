@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Event } from '../../../shared/types';
 import { useAuth } from '../contexts/AuthContext';
 
-const API = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
+const API = import.meta.env.VITE_API_URL ?? '';
 
 export function useEvents(category?: string, search?: string) {
   return useQuery({

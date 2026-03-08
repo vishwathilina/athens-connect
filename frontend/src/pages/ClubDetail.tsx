@@ -6,12 +6,14 @@ import { useClub, useJoinClub, useLeaveClub } from "@/hooks/useClubs";
 import { useDashboard } from "@/hooks/useDashboard";
 import { useAuth } from "@/contexts/AuthContext";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useToast } from "@/hooks/use-toast";
 
 const ClubDetail = () => {
   const { id: slug } = useParams<{ id: string }>();
   const { data: club, isLoading, error } = useClub(slug);
   const { data: dashboard } = useDashboard();
   const { user } = useAuth();
+  const { toast } = useToast();
   const joinClub = useJoinClub();
   const leaveClub = useLeaveClub();
 
@@ -61,9 +63,15 @@ const ClubDetail = () => {
       return;
     }
     if (isMember) {
-      leaveClub.mutate(club.id);
+      leaveClub.mutate(club.id, {
+        onSuccess: () => toast({ title: `Left ${club.name}` }),
+        onError: (err) => toast({ title: 'Error', description: (err as Error).message, variant: 'destructive' }),
+      });
     } else {
-      joinClub.mutate(club.id);
+      joinClub.mutate(club.id, {
+        onSuccess: () => toast({ title: `Joined ${club.name}! 🎉` }),
+        onError: (err) => toast({ title: 'Error', description: (err as Error).message, variant: 'destructive' }),
+      });
     }
   };
 
