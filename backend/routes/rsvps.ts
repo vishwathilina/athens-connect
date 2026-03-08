@@ -25,7 +25,8 @@ router.post('/:id/rsvp', requireAuth, async (req: Request, res: Response) => {
     } else {
       res.status(500).json({ error: 'Could not complete RSVP' });
     }
-  } catch {
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -46,8 +47,14 @@ router.delete('/:id/rsvp', requireAuth, async (req: Request, res: Response) => {
       return;
     }
 
+    await db.query(
+      'UPDATE events SET registered_count = GREATEST(registered_count - 1, 0) WHERE id = $1',
+      [eventId]
+    );
+
     res.json({ data: { message: 'RSVP cancelled' } });
-  } catch {
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
