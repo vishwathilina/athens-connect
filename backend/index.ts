@@ -9,6 +9,7 @@ import eventsRouter from './routes/events.ts';
 import rsvpsRouter from './routes/rsvps.ts';
 import dashboardRouter from './routes/dashboard.ts';
 import presidentRouter from './routes/president.ts';
+import staffRouter from './routes/staff.ts';
 
 const app = express();
 const PORT = Number(process.env.PORT ?? 3000);
@@ -30,6 +31,7 @@ app.use('/api/events', eventsRouter);
 app.use('/api/events', rsvpsRouter);   // RSVP sub-routes: /api/events/:id/rsvp
 app.use('/api/dashboard', dashboardRouter);
 app.use('/api/president', presidentRouter);
+app.use('/api/staff', staffRouter);
 
 // ── Health check ─────────────────────────────────────────────
 app.get('/api/health', (_req, res) => {
