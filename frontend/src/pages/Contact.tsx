@@ -32,8 +32,8 @@ const Contact = () => {
           <div className="space-y-6">
             {[
               { icon: Mail, label: "Email", value: "hello@athens.edu", href: "mailto:hello@athens.edu" },
-              { icon: Phone, label: "Phone", value: "+1 (555) 123-4567", href: "tel:+15551234567" },
-              { icon: MapPin, label: "Address", value: "Student Union Building, University Ave, Campus 01234", href: "#" },
+              { icon: Phone, label: "Phone", value: "+94 11 544 5000", href: "tel:+94115445000" },
+              { icon: MapPin, label: "Address", value: "NSBM Green University", href: "#" },
             ].map(({ icon: Icon, label, value, href }) => (
               <a key={label} href={href} className="flex items-start gap-4 bg-secondary rounded-2xl p-6 hover:bg-muted transition-colors">
                 <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
