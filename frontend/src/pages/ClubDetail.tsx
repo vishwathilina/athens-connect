@@ -13,11 +13,8 @@ const ClubDetail = () => {
   const { data: club, isLoading, error } = useClub(slug);
   const { data: dashboard } = useDashboard();
   const { user } = useAuth();
-<<<<<<< HEAD
   const navigate = useNavigate();
-=======
   const { toast } = useToast();
->>>>>>> e1ffc206dd9fe94cf2929b49e41fb913c960ce71
   const joinClub = useJoinClub();
   const leaveClub = useLeaveClub();
 
